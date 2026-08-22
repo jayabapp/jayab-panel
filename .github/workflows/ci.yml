@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: Typecheck, lint & build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    env:
+      # Build-time placeholders. Every value the build reads is a public
+      # NEXT_PUBLIC_* URL, so no real secret is needed to compile.
+      NEXT_PUBLIC_BASE_URL: http://localhost:3000/api
+      NEXT_PUBLIC_WEBSITE_URL: http://localhost:3026
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npx next lint
+
+      - name: Build
+        run: npx next build
