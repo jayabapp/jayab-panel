@@ -1,0 +1,425 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "iranyekan";
+  font-style: normal;
+  font-weight: 300;
+  src: url("../public/assets/fonts/woff/iranyekanwebblack.woff") format("woff");
+}
+
+/* ------------------------------------      MEDIUM      ------------------------------------ */
+@font-face {
+  font-family: "iranyekan";
+  font-style: normal;
+  font-weight: 500;
+  src: url("../public/assets/fonts/woff/iranyekanwebmediumfanum.woff")
+    format("woff");
+}
+
+/* ------------------------------------       LIGHT      ------------------------------------ */
+@font-face {
+  font-family: "iranyekan";
+  font-style: normal;
+  font-weight: 300;
+  src: url("../public/assets/fonts/woff/iranyekanweblightfanum.woff")
+    format("woff");
+}
+
+/* ------------------------------------       BOLD       ------------------------------------ */
+@font-face {
+  font-family: "iranyekan";
+  font-style: normal;
+  font-weight: 700;
+  src: url("../public/assets/fonts/woff/iranyekanwebboldfanum.woff")
+    format("woff");
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+/* input[type="number"] {
+  -moz-appearance: textfield;
+} */
+
+/* :root {
+  --body-bg: #f9f9fc;
+} */
+/* [data-theme="dark"] {
+  --body-bg: rgb(30 41 59);
+}
+[data-theme="light"] {
+  --body-bg: #f3f6f8;
+} */
+html,
+[dir="rtl"] body {
+  padding: 0;
+  margin: 0;
+  font-family:
+    "iranyekan",
+    -apple-system,
+    BlinkMacSystemFont,
+    Segoe UI,
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    Fira Sans,
+    Droid Sans,
+    Helvetica Neue,
+    sans-serif;
+  font-size: 90%;
+  background-color: var(--body-bg);
+}
+
+/* a {
+  @apply text-blue-500 dark:text-blue-400 underline underline-offset-4;
+} */
+
+* {
+  box-sizing: border-box;
+  scrollbar-width: none;
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+  display: none;
+}
+button:focus {
+  outline: 0;
+}
+
+textarea,
+input[type="text"],
+input[type="button"],
+input[type="submit"],
+input[type="number"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  outline: none;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield; /* Reset the default Firefox appearance */
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* input {
+  border: 0;
+  outline: 0;
+} */
+input:focus {
+  outline: none !important;
+}
+
+.text-en {
+  font-family: Inter !important;
+}
+.header-extra-style {
+  /* height: 181px; */
+  /* z-index: 2; */
+}
+
+.swiper-pagination {
+  @apply absolute bottom-5 right-5 left-auto  z-10 h-5 flex w-20;
+}
+
+.swiper-pagination-bullet {
+  @apply w-3 h-3 aspect-square rounded-full z-10  bg-gray-300 dark:bg-zinc-600 transition-all ease-in-out duration-300 mx-0.5 cursor-pointer;
+}
+
+.swiper-pagination-bullet-active {
+  @apply w-8 h-3  rounded-full bg-primary-700 dark:bg-primary-700 transition-all  z-10 ease-in-out duration-300 mx-0.5;
+}
+
+.app-container {
+  @apply h-full bg-white  dark:bg-slate-800 px-1 md:px-3  pt-12 lg:pt-[13rem] pb-4;
+}
+.app-container-profile {
+  @apply w-full min-h-screen md:min-h-full py-0 md:py-4  bg-white dark:bg-slate-800  overflow-x-scroll   lg:rounded-lg  h-full  px-3 md:px-5 shadow-card dark:shadow-cardDark border dark:border-0;
+}
+.app-size {
+  @apply w-full md:w-full mx-auto lg:w-full;
+}
+.app-background {
+  @apply bg-[#f9f9f9] dark:bg-slate-900;
+}
+
+.app-text {
+  @apply text-gray-700 dark:text-gray-300;
+}
+
+.slick-dots {
+  display: flex !important;
+  justify-content: flex-end;
+  padding-right: 40px !important;
+}
+
+.slick-track {
+  line-height: 0;
+}
+
+.ltr {
+  direction: ltr;
+}
+
+/* ---------------------------------- CARD ---------------------------------- */
+.card {
+  @apply py-4 h-full  bg-white dark:bg-slate-800 lg:border border-gray-100 dark:border-slate-700/70 rounded-10 lg:rounded-10  lg:shadow-md lg:dark:shadow-cardDark;
+}
+.card-padding-x {
+  @apply px-3;
+}
+.card-padding-y {
+  @apply py-3;
+}
+
+/* --------------------------------- HEADER --------------------------------- */
+.header-content-container {
+  @apply fixed top-0   right-0 left-0  z-40;
+}
+.header-container {
+  @apply w-full flex  justify-between items-center px-2  h-full;
+}
+
+/* --------------------------------- BUTTON --------------------------------- */
+.btn-primary {
+  @apply bg-primary-500 bg-opacity-30  text-primary-600 dark:text-primary-600 border border-primary-500   hover:ring-4 hover:ring-primary-500/50 dark:hover:ring-primary-500/50 cursor-pointer;
+}
+
+.btn-confirm {
+  @apply lg:flex lg:justify-end my-4 mx-2;
+}
+
+.text-shadow-1 {
+  text-shadow: 2px 2px 4px rgb(0 0 0 / 30%);
+}
+
+.slick-dots {
+  bottom: 5px !important;
+}
+.divider {
+  @apply divide-y  divide-gray-300 dark:divide-gray-600;
+}
+
+.sticky-button {
+  @apply sticky bottom-0 left-0 right-0 flex flex-col   justify-between items-center w-full px-3 pt-2 pb-4 bg-white dark:bg-slate-800 shadow-card dark:shadow-zinc-800;
+}
+
+.swiper {
+  margin-left: 0 !important;
+  position: relative;
+  overflow: hidden;
+  list-style: none;
+  padding: 0;
+  z-index: 1;
+}
+.swiper-wrapper {
+  padding-top: 3rem;
+}
+.wraper-top-0 > .swiper-wrapper {
+  padding-top: 0;
+}
+.toper > .swiper-pagination {
+  top: 1.5rem;
+  left: 0;
+  right: auto;
+  width: auto !important;
+}
+
+.img-dark {
+  @apply dark:brightness-[0.90] dark:contrast-[1.1] transition-all duration-150 ease-in-out;
+}
+
+.card-shadow {
+  box-shadow:
+    0px 4px 4px rgba(0, 0, 0, 0.3),
+    4px 0px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ---------------------------------- QUILL --------------------------------- */
+.ql-picker-label {
+  text-align: left !important;
+}
+
+.ql-editor {
+  direction: rtl !important;
+  text-align: right !important;
+  min-height: 200px !important;
+}
+
+.quill {
+  border-radius: 20px !important;
+}
+
+/* -------------------------------- END QUILL ------------------------------- */
+.image-container {
+  @apply bg-neutral-100 dark:bg-slate-700 border border-dashed border-gray-400 dark:border-gray-100 rounded-10  w-44 h-44;
+}
+
+.primary-btn {
+  @apply w-6 h-6 mr-2 text-sky-600 dark:text-sky-400;
+}
+
+.cell-container {
+  @apply border border-slate-300 dark:border-slate-600 font-semibold p-4 text-slate-500 dark:text-slate-400  text-center;
+}
+
+.link-btn {
+  @apply transition-all ease-in-out duration-200 relative bg-sky-400 bg-opacity-20 dark:bg-blue-200  rounded-10 p-3  flex  gap-x-2 justify-center items-center w-28 text-sky-700;
+}
+
+.link-fuchsia-btn {
+  @apply transition-all ease-in-out duration-200 relative bg-fuchsia-400 bg-opacity-20 dark:bg-fuchsia-200  rounded-10 p-3  flex  gap-x-2 justify-center items-center w-28 text-fuchsia-700;
+}
+
+.auth-container {
+  @apply flex justify-center items-center w-full lg:w-3/4 xl:w-[60%]  2xl:w-1/2 mx-auto relative h-screen;
+}
+
+.auth-form-section {
+  @apply bg-white dark:bg-slate-800   rounded-r-10 w-full xl:w-[65%]  z-10 opacity-90  dark:text-gray-200 h-full xl:h-[500px] border dark:border-slate-700 border-neutral-200;
+}
+
+.auth-image-section {
+  @apply hidden lg:flex bg-white  dark:bg-slate-800 px-3 rounded-l-10 xl:h-[500px] xl:w-[35%]    flex-col justify-center border dark:border-slate-700 border-neutral-200 border-r-0;
+}
+
+.search-container {
+  @apply w-full xl:w-[40%] 2xl:w-[25%];
+}
+
+.direction-ltr {
+  direction: ltr;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                    FORM                                    */
+/* -------------------------------------------------------------------------- */
+.form-control {
+  @apply bg-neutral-50 dark:bg-slate-900   text-gray-900   text-sm  flex px-3 py-3 focus:outline-none  dark:border-slate-600  dark:text-white disabled:bg-neutral-200 dark:disabled:bg-slate-700 border  border-gray-300 dark:focus:border-primary-700 focus:border-primary-700;
+}
+
+.form-input-wrapper {
+  @apply bg-neutral-200 dark:bg-slate-700 hover:bg-neutral-700 dark:hover:bg-slate-600 group-data-[focus=true]:dark:bg-slate-900;
+}
+
+.z-10000 {
+  z-index: 10000;
+}
+
+/* -------------------------------------------------------------------------- */
+/* TINYMCE */
+/* -------------------------------------------------------------------------- */
+
+.mce-float-left {
+  float: left;
+  margin: 0 10px 0 10px;
+}
+
+.mce-float-right {
+  float: right;
+  margin: 0 10px 0 10px;
+}
+.mce-rounded-10 {
+  border-radius: 10px;
+}
+.mce-img-center {
+  display: block;
+  margin: 20px auto;
+}
+
+strong {
+  @apply font-bold text-xl leading-10;
+}
+p {
+  @apply leading-8 font-light text-justify;
+}
+
+@layer utilities {
+  .polka-pattern {
+    background-color: #f3f4f6;
+    opacity: 1;
+    background-image: radial-gradient(#d1d5db 1px, #f3f4f6 1px);
+    background-size: 8px 8px;
+  }
+  .polka-pattern-dark {
+    background-color: #0f172a;
+    opacity: 1;
+    background-image: radial-gradient(#1e293b 1px, #0f172a 1px);
+    background-size: 8px 8px;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                  TAG INPUT                                 */
+/* -------------------------------------------------------------------------- */
+.rti--container {
+  --rti-bg: rgba(0, 0, 0, 0) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                   INVOICE                                  */
+/* -------------------------------------------------------------------------- */
+.header-item-wrapper {
+  border: 1px solid #000;
+  width: 100%;
+  height: 100%;
+  background: #eee;
+  display: flex;
+  align-content: center;
+}
+.bordered {
+  border: 1px solid #000;
+  padding: 0.12cm;
+}
+.grow {
+  width: 100%;
+  height: 100%;
+}
+.header-item-data {
+  height: 100%;
+  width: 100%;
+}
+.portait {
+  transform: rotate(-90deg) translate(0, 30%);
+  text-align: center;
+}
+
+.content-table {
+  border-collapse: collapse;
+}
+.content-table td,
+th {
+  border: 1px solid #000;
+  text-align: center;
+  padding: 0.1cm;
+  font-weight: normal;
+}
+thead,
+tfoot {
+  background: #eee;
+}
+
+.invoice-label {
+  @apply font-bold pl-0.5;
+}
+
+@page {
+  size: A4 landscape;
+  margin: 0;
+  margin-bottom: 0.5cm;
+  margin-top: 0.5cm;
+}
