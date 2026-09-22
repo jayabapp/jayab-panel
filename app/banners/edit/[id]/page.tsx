@@ -127,6 +127,11 @@ const BannerEdit = () => {
       <div className="bg-warning/10 text-warning-500 px-3 py-2 rounded-lg w-fit mt-6">
         در صورت نیاز میتوانید بنر را به یک ملک وصل کنید
       </div>
+      <div className="bg-primary/10 text-primary-500 px-3 py-2 rounded-lg w-fit mt-3">
+        هر بنر فقط یک تصویر (یک اسلاید) دارد. برای اسلایدر متحرک هیرو با چند
+        تصویر، چند بنر جداگانه با موقعیت «اسلایدر هیرو (بالای صفحه اصلی)»
+        بسازید؛ همه‌ی آن‌ها خودکار پشت‌سرهم نمایش داده می‌شوند.
+      </div>
       <div className="flex gap-6">
         {/* SEARCH PROPERTY */}
         <div className="my-10 w-2/6 m-1">
