@@ -4,10 +4,10 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CreateProps, FilterProp } from "@/components/Table/table.type";
 import { ActionButton, Column } from "@/components/Table/table.type";
 import { useState, useEffect } from "react";
-import { Button, Pagination } from "@nextui-org/react";
 import { TableServerProps } from "@/components/Table/table.type";
 import { PaginationMeta } from "@/interfaces/pagination.type";
 import { useQueryGet } from "@/helpers/query-get.hooks";
+import { Pagination } from "@nextui-org/react";
 import { apiRoutes } from "@/utils/urls";
 import { kebabCase } from "lodash";
 import { ApiCall } from "@/helpers/ApiCall";
@@ -196,15 +196,7 @@ const Banners = ({}) => {
         modelTitle={modelTitle}
         hasCreateButton={tableProps.availableActions?.includes("create")}
         totalCount={meta?.total}
-      >
-        <Button
-          color="secondary"
-          variant="flat"
-          onPress={() => router.push("/banners/hero")}
-        >
-          مدیریت اسلایدر هیرو
-        </Button>
-      </PageHeader>
+      />
 
       <div className="app-container-profile">
         <Table
@@ -237,7 +229,6 @@ const Banners = ({}) => {
           showControls
         />
       </div>
-      {/*********************** DELETE MODAL  ************************/}
       <ConfirmModal
         text={"آیا میخواهید این آیتم را حذف کنید؟"}
         isVisible={deleteModalisVisible}

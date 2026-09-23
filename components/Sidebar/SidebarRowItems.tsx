@@ -529,20 +529,7 @@ export const sidebarRowItems = (
           title: "بنر ها",
           route: "/banners",
           icon: (selected) => <Image {...phosphoreIconProps(selected)} />,
-          sub_categories: [
-            {
-              id: 1,
-              title: "همه بنرها",
-              route: "/banners",
-              key: "banners",
-            },
-            {
-              id: 2,
-              title: "اسلایدر هیرو (صفحه اصلی)",
-              route: "/banners/hero",
-              key: "banners",
-            },
-          ],
+          sub_categories: [],
           key: "banners",
         },
         {
