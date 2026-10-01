@@ -9,7 +9,7 @@ import Loading from "@/components/shared/Loading";
 import FormInput from "@/components/Form/FormInput";
 import PageHeader from "@/components/Table/PageHeader";
 import { PrimitiveObject, Setting, SettingDataType } from "@/interfaces/schema.type";
-import { Button } from "@nextui-org/react";
+import { Button, Switch } from "@nextui-org/react";
 import FormInputMulti from "@/components/Form/FormInputMulti";
 
 const Settings = () => {
@@ -68,6 +68,30 @@ const Settings = () => {
     );
   };
 
+  // کلیدهای روشن/خاموش: بعد از تأیید، بلافاصله ذخیره می‌شوند
+  const onToggle = (id: number, isOn: boolean) => {
+    const s = settings.find((e) => e.id == id);
+    if (!s) return;
+    const message = isOn
+      ? `«${s.title}» فعال شود؟`
+      : `«${s.title}» متوقف شود؟ این تغییر فوری برای همه کاربران اعمال می‌شود.`;
+    if (!window.confirm(message)) return;
+
+    setDisabled(true);
+    ApiCall(
+      "PATCH",
+      `${apiRoutes.SETTING1}/${id}`,
+      { value: isOn ? "1" : "0" },
+      "update settings",
+      () => {
+        setDisabled(false);
+        setSettings((list) => list.map((e) => (e.id == id ? { ...e, value: isOn ? "1" : "0" } : e)));
+        setValues((v) => ({ ...v, [s.key]: isOn ? "1" : "0" }));
+      },
+      () => setDisabled(false)
+    );
+  };
+
   if (isLoading) return <Loading />;
   return (
     <div className="app-container-profile">
@@ -78,7 +102,26 @@ const Settings = () => {
       {/*********************** CONTENT ************************/}
       <div className="my-8">
         <div className="divide-y divide divide-dashed divide-gray-200 dark:divide-slate-600">
-          {settings?.map((e) => (
+          {settings?.map((e) =>
+            e.data_type == SettingDataType.BOOLEAN ? (
+              <div key={e.id} className="flex items-center justify-between gap-4 w-full py-3 max-w-lg">
+                <Switch
+                  isSelected={e.value === "1"}
+                  isDisabled={disabled}
+                  onValueChange={(isOn) => onToggle(e.id, isOn)}
+                  color="success"
+                >
+                  {e.title}
+                </Switch>
+                <p
+                  className={`text-sm font-bold w-fit text-center rounded-20 px-2 py-1 ${
+                    e.value === "1" ? "text-success bg-success/10" : "text-danger bg-danger/10"
+                  }`}
+                >
+                  {e.value === "1" ? "فعال" : "متوقف"}
+                </p>
+              </div>
+            ) : (
             <div key={e.id} className="grid grid-cols-4 lg:grid-cols-7 gap-4 lg:gap-4 w-full items-center py-3">
               <FormInput
                 title={e.title}
@@ -108,7 +151,8 @@ const Settings = () => {
                 ثبت
               </Button>
             </div>
-          ))}
+            )
+          )}
         </div>
       </div>
     </div>

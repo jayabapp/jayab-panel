@@ -36,6 +36,7 @@ export enum SettingDataType {
   NUMBER = "NUMBER",
   TEXT = "TEXT",
   TEXT_AREA = "TEXT_AREA",
+  BOOLEAN = "BOOLEAN",
 }
 
 export type DateType = {
