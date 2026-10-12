@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { CONTENT_STYLE, CUSTOM_CALENDAR } from "./tinymce.constant";
+import { apiRoutes } from "@/utils/urls";
+import { debounce } from "lodash";
+import { ApiCall } from "@/helpers/ApiCall";
 import { Editor } from "@tinymce/tinymce-react";
 import { Button } from "@nextui-org/react";
-import { ApiCall } from "@/helpers/ApiCall";
-import { apiRoutes } from "@/utils/urls";
-import { CONTENT_STYLE, CUSTOM_CALENDAR } from "./tinymce.constant";
-import { debounce } from "lodash";
 
 type PropsType = {
   value: string | undefined;
@@ -18,6 +18,9 @@ type PropsType = {
     titleHint?: string;
     maxLength?: number;
     isMandatory?: boolean;
+    direction?: "rtl" | "ltr";
+    immediateChanges?: boolean;
+    disabled?: boolean;
   };
 };
 const RichTextEditor = ({ title, value, onChangeText, options }: PropsType) => {
@@ -62,7 +65,12 @@ const RichTextEditor = ({ title, value, onChangeText, options }: PropsType) => {
 
       {/*********** TINYMCE ***********/}
       <Editor
+        disabled={options?.disabled}
         onEditorChange={(e) => {
+          if (options?.immediateChanges) {
+            onChangeText(e);
+            return;
+          }
           setisTyping(true);
           checkTyping();
         }}
@@ -71,7 +79,7 @@ const RichTextEditor = ({ title, value, onChangeText, options }: PropsType) => {
         initialValue={initialValue?.current}
         init={{
           promotion: false,
-          directionality: "rtl",
+          directionality: options?.direction ?? "rtl",
           menubar: "edit view format tools insert",
           convert_urls: false,
           toolbar1:
@@ -93,7 +101,6 @@ const RichTextEditor = ({ title, value, onChangeText, options }: PropsType) => {
             "print",
             "wordcount ",
             "link",
-            // "insertdatetime",
             "pagebreak",
             "image",
             "media",
@@ -106,8 +113,6 @@ const RichTextEditor = ({ title, value, onChangeText, options }: PropsType) => {
           contextmenu: "copy wordcount image",
           browser_spellcheck: true,
           images_file_types: "png,jpg,jpeg,webp,avif",
-          // language: "fa",
-          // language_url: "/assets/libs/tinymce_lang/fa.js",
           paste_data_images: false,
           force_p_newlines: false,
           branding: false,
@@ -202,23 +207,6 @@ const RichTextEditor = ({ title, value, onChangeText, options }: PropsType) => {
                 });
               }
             });
-            // editor.ui.registry.addButton("FAQ", {
-            //   text: "FAQ",
-            //   onAction: () => {
-            //     const id = "acc_" + Math.random().toString(16).slice(2);
-            //     editor.insertContent(`
-            //         <details data-type="faq">
-            //           <summary>
-            //             پرسش
-            //           </summary>
-            //           <div id="${id}">
-            //             <p>پاسخ</p>
-            //           </div>
-            //         </details>
-            //         <p></p>
-            //       `);
-            //   },
-            // });
           },
         }}
       />
