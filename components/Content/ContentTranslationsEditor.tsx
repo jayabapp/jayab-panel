@@ -9,9 +9,10 @@ import type { ContentTranslation } from "@/interfaces/content-translations";
 import RichTextEditor from "@/components/RichTextEditor";
 
 type Props = {
-  value: ContentTranslations;
-  onChange: Dispatch<SetStateAction<ContentTranslations>>;
   disabled: boolean;
+  value: ContentTranslations;
+  contentKey: "homeContent" | "terms";
+  onChange: Dispatch<SetStateAction<ContentTranslations>>;
 };
 
 const LANGUAGES = [
@@ -27,8 +28,14 @@ const emptyEdition = (): ContentTranslation => ({
   seo: { metaTitle: "", metaDescription: "" },
 });
 
-const HomeContentTranslations = ({ value, onChange, disabled }: Props) => {
+const ContentTranslationsEditor = ({
+  contentKey,
+  value,
+  onChange,
+  disabled,
+}: Props) => {
   const id = useId();
+  const isTerms = contentKey === "terms";
 
   const update = (
     locale: "ar" | "en",
@@ -58,12 +65,14 @@ const HomeContentTranslations = ({ value, onChange, disabled }: Props) => {
   return (
     <section className="my-6 space-y-4" aria-labelledby={`${id}-heading`}>
       <h2 id={`${id}-heading`} className="font-medium text-lg">
-        ترجمه‌های صفحه اصلی
+        {isTerms ? "ترجمه‌های قوانین و مقررات" : "ترجمه‌های صفحه اصلی"}
       </h2>
       <p className="text-sm opacity-80">
-        محتوای فارسی را در فیلدهای اصلی ویرایش کنید. هر زبان، شعار، عنوان، متن و
-        سئوی مستقل دارد. برای انتشار ترجمه، تمام عنوان‌ها و توضیحات سئوی آن زبان
-        را تکمیل کنید.
+        محتوای فارسی را در فیلدهای اصلی ویرایش کنید. هر زبان، عنوان، توضیحات،
+        متن و سئوی مستقل دارد. برای انتشار ترجمه، تمام عنوان‌ها و توضیحات سئوی
+        آن زبان را تکمیل کنید.
+        {isTerms && " متن کامل قوانین هر زبان نیز باید تکمیل شود."}
+        {" برداشتن تیک نسخهٔ زبان و ذخیره، ترجمهٔ آن زبان را حذف می‌کند."}
       </p>
       {LANGUAGES.map(({ code, label, dir }) => {
         const edition = value[code];
@@ -94,8 +103,16 @@ const HomeContentTranslations = ({ value, onChange, disabled }: Props) => {
                 {(
                   [
                     ["title", "عنوان محتوا", 200],
-                    ["small_text", "عنوان بخش پایین صفحه", 1000],
-                    ["full_text", "شعار بنر بالای صفحه", 2000],
+                    [
+                      "small_text",
+                      isTerms ? "عنوان صفحه قوانین" : "عنوان بخش پایین صفحه",
+                      1000,
+                    ],
+                    [
+                      "full_text",
+                      isTerms ? "توضیحات قوانین" : "شعار بنر بالای صفحه",
+                      2000,
+                    ],
                   ] as const
                 ).map(([field, title, maxLength]) => (
                   <label key={field} className="block text-sm">
@@ -115,8 +132,8 @@ const HomeContentTranslations = ({ value, onChange, disabled }: Props) => {
                 ))}
                 <RichTextEditor
                   key={code}
-                  title="متن صفحه"
                   value={edition.html}
+                  title={isTerms ? "متن کامل قوانین و مقررات" : "متن صفحه"}
                   onChangeText={(html: string) => update(code, "html", html)}
                   options={{ direction: dir, immediateChanges: true, disabled }}
                 />
@@ -126,13 +143,13 @@ const HomeContentTranslations = ({ value, onChange, disabled }: Props) => {
                       {field === "metaTitle" ? "عنوان سئو" : "توضیحات سئو"}
                     </span>
                     <textarea
-                      className="w-full rounded-md border bg-transparent p-3"
+                      required
                       dir={dir}
                       lang={code}
                       value={edition.seo[field]}
-                      maxLength={field === "metaTitle" ? 200 : 1000}
-                      required
                       rows={field === "metaTitle" ? 2 : 3}
+                      maxLength={field === "metaTitle" ? 200 : 1000}
+                      className="w-full rounded-md border bg-transparent p-3"
                       onChange={(event) =>
                         updateSeo(code, field, event.target.value)
                       }
@@ -152,4 +169,4 @@ const HomeContentTranslations = ({ value, onChange, disabled }: Props) => {
   );
 };
 
-export default HomeContentTranslations;
+export default ContentTranslationsEditor;

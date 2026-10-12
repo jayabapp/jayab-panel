@@ -1,16 +1,21 @@
 "use client";
-import { useParams } from "next/navigation";
+
+import { prepareTitleTranslations } from "@/components/Content/TitleTranslationsEditor";
 import { useState, useEffect } from "react";
-import { ApiCall } from "@/helpers/ApiCall";
-import { useRouter } from "next/navigation";
-import Loading from "@/components/shared/Loading";
-import PageHeader from "@/components/Table/PageHeader";
-import { CreateProps, ShowProps } from "@/components/Table/table.type";
-import FormBuilder from "@/components/Form/FormBuilder";
-import { produce } from "immer";
-import SubmitButton from "@/components/Form/SubmitButton";
-import { apiRoutes } from "@/utils/urls";
 import { apiBodyCreator } from "@/helpers/generator/ApiBodyCreator.helper";
+import { CreateProps } from "@/components/Table/table.type";
+import { useRouter } from "next/navigation";
+import { apiRoutes } from "@/utils/urls";
+import { ApiCall } from "@/helpers/ApiCall";
+import { produce } from "immer";
+
+import { type TitleTranslations } from "@/components/Content/TitleTranslationsEditor";
+
+import TitleTranslationsEditor from "@/components/Content/TitleTranslationsEditor";
+import SubmitButton from "@/components/Form/SubmitButton";
+import FormBuilder from "@/components/Form/FormBuilder";
+import PageHeader from "@/components/Table/PageHeader";
+import Loading from "@/components/shared/Loading";
 
 type State = { [key: string]: any };
 
@@ -22,6 +27,7 @@ const PropertyOptionCreate = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [formItems, setFormItems] = useState<CreateProps[]>();
   const [states, setStates] = useState<State>({});
+  const [translations, setTranslations] = useState<TitleTranslations>({});
 
   useEffect(() => {
     getFormItems();
@@ -37,7 +43,7 @@ const PropertyOptionCreate = () => {
         const props = data.createProps;
         setFormItems(props || []);
         setIsLoading(false);
-      }
+      },
     );
   };
 
@@ -53,24 +59,20 @@ const PropertyOptionCreate = () => {
     });
   };
 
-  //به ازای هر لیست وابسته یکبار این تابع نوشته می شود
   useEffect(() => {
     if (states["category_id"])
       getChainedStateList(
         "sub_category_id",
-        `/admin/categories/parents/${states["category_id"]?.id}`
+        `/admin/categories/parents/${states["category_id"]?.id}`,
       );
   }, [states["category_id"]]);
 
-  /* ------------------------------- SUBMIT FORM ------------------------------ */
   const onSubmit = () => {
     setDisabled(true);
     let body = apiBodyCreator(states, formItems);
-
     body = {
       ...body,
-      lat: +states?.coordinate?.lat,
-      lng: +states?.coordinate?.lng,
+      translations: prepareTitleTranslations(translations),
     };
 
     console.log({ body });
@@ -82,33 +84,34 @@ const PropertyOptionCreate = () => {
       "SUBMIT ",
       ({ data }) => {
         router.back();
-        // setDisabled(false);
       },
-      () => setDisabled(false)
+      () => setDisabled(false),
     );
   };
 
   if (isLoading || !formItems) return <Loading />;
   return (
     <div className="app-container-profile ">
-      {/*********************** Page HEADER ************************/}
       <div>
         <PageHeader
           title="ایجاد"
-          hasCreateButton={false}
           hasBackButton={true}
+          hasCreateButton={false}
         />
       </div>
 
-      {/*********************** Form Builder ************************/}
       <FormBuilder
-        formItems={formItems}
         states={states}
-        setStates={setStates}
         notEditableList={[]}
+        formItems={formItems}
+        setStates={setStates}
       />
 
-      {/*********************** SUBMIT BUTTON ************************/}
+      <TitleTranslationsEditor
+        disabled={disabled}
+        value={translations}
+        onChange={setTranslations}
+      />
       <SubmitButton disabled={disabled} onPress={onSubmit} />
     </div>
   );

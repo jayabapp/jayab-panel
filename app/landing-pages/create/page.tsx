@@ -1,33 +1,29 @@
 "use client";
-import { useParams, useSearchParams } from "next/navigation";
+
+import { prepareTitleTranslations } from "@/components/Content/TitleTranslationsEditor";
+import { PropertyOptionGroupList } from "@/interfaces/property-option-groups.type";
 import { useState, useEffect } from "react";
-import { ApiCall } from "@/helpers/ApiCall";
+import { PropertyOptionGroup } from "@/interfaces/property-option-groups.type";
+import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import Loading from "@/components/shared/Loading";
-import PageHeader from "@/components/Table/PageHeader";
-import {
-  CreateProps,
-  EnumList,
-  ShowProps,
-} from "@/components/Table/table.type";
-import FormBuilder from "@/components/Form/FormBuilder";
-import { produce } from "immer";
-import SubmitButton from "@/components/Form/SubmitButton";
 import { apiRoutes } from "@/utils/urls";
-import { apiBodyCreator } from "@/helpers/generator/ApiBodyCreator.helper";
-import FormInput from "@/components/Form/FormInput";
-import { Divider } from "@/components/shared/Divider";
-import FormSwitch from "@/components/Form/FormSwitch";
-import FormSelect from "@/components/Form/FormSelect";
-import FormSelectMulti from "@/components/Form/FormSelectMulti";
-import { groupBy } from "lodash";
+import { EnumList } from "@/components/Table/table.type";
 import { Checkbox } from "@nextui-org/react";
-import {
-  PropertyOptionGroup,
-  PropertyOptionGroupList,
-} from "@/interfaces/property-option-groups.type";
+import { ApiCall } from "@/helpers/ApiCall";
+import { Divider } from "@/components/shared/Divider";
+import { groupBy } from "lodash";
+
+import { type TitleTranslations } from "@/components/Content/TitleTranslationsEditor";
+
+import TitleTranslationsEditor from "@/components/Content/TitleTranslationsEditor";
+import FormSelectMulti from "@/components/Form/FormSelectMulti";
 import ImageUploader from "@/components/Form/ImageUploader";
-import { useQueryGet } from "@/helpers/query-get.hooks";
+import SubmitButton from "@/components/Form/SubmitButton";
+import FormSwitch from "@/components/Form/FormSwitch";
+import PageHeader from "@/components/Table/PageHeader";
+import FormSelect from "@/components/Form/FormSelect";
+import FormInput from "@/components/Form/FormInput";
+import Loading from "@/components/shared/Loading";
 
 type State = { [key: string]: any };
 
@@ -57,15 +53,14 @@ const LandingPageCreate = () => {
   const pageId = searchParams.get("page_id");
 
   const [disabled, setDisabled] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(Boolean(pageId));
   const [states, setStates] = useState<State>({});
+  const [translations, setTranslations] = useState<TitleTranslations>({});
   const [provinces, setProvinces] = useState([]);
   const [cities, setCities] = useState([]);
   const [propertyOptions, setPropertyOptions] = useState<{
     [key in PropertyOptionGroup]?: any[];
   }>({});
-  // const [positionList, setPositionList] = useState<EnumList[]>([]);
-
   const [contents, setContents] = useState([]);
   const [landingPages, setLandingPages] = useState([]);
   const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
@@ -95,13 +90,10 @@ const LandingPageCreate = () => {
       "GET OPTIONS",
       ({ data }) => {
         const grouped = groupBy(data.data, "group");
-
         delete grouped.BUILDING_DIRECTION;
         delete grouped.ACCESS;
         delete grouped.OWNERSHIP;
-
         setPropertyOptions(grouped);
-
         if (pageId) getData();
         else setIsLoading(false);
       },
@@ -116,28 +108,26 @@ const LandingPageCreate = () => {
       "GET DATA",
       ({ data }) => {
         setStates(data.data);
+        setTranslations(data.data?.translations ?? {});
         setSelectedOptions(data.data?.options);
-        // setPositionList(data.data?.position_list);
         setIsLoading(false);
       },
     );
   };
 
-  const onChange = (key: string, value: any) => {
+  const onChange = (key: string, value: any) =>
     setStates((prev) => ({ ...prev, [key]: value }));
-  };
 
   const _findOptionTitle = (key: string): string => {
     const t = PropertyOptionGroupList.find((e) => e.id === key)?.title;
     return t || "";
   };
 
-  /* ------------------------------- SUBMIT FORM ------------------------------ */
   const onSubmit = () => {
     setDisabled(true);
-
     const body = {
       ...states,
+      translations: prepareTitleTranslations(translations),
       province_id: states.province?.id,
       cities: states.cities?.map((e: any) => e.id),
       options: selectedOptions || [],
@@ -155,7 +145,6 @@ const LandingPageCreate = () => {
       "SUBMIT ",
       ({ data }) => {
         router.back();
-        // setDisabled(false);
       },
       () => setDisabled(false),
     );
@@ -164,58 +153,61 @@ const LandingPageCreate = () => {
   if (isLoading) return <Loading />;
   return (
     <div className="app-container-profile ">
-      {/*********************** Page HEADER ************************/}
       <div>
         <PageHeader
-          title="ایجاد صفحه لندینگ"
-          hasCreateButton={false}
           hasBackButton={true}
+          hasCreateButton={false}
+          title={pageId ? "ویرایش صفحه لندینگ" : "ایجاد صفحه لندینگ"}
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-        {/*********************** FORM ************************/}
         <FormInput
-          options={{ placeholder: "عنوان صفحه لندینگ" }}
-          title="عنوان"
-          onChangeText={(v) => onChange("title", v)}
-          value={states?.title}
           showX={false}
+          title="عنوان فارسی"
+          value={states?.title}
+          options={{ placeholder: "عنوان صفحه لندینگ" }}
+          onChangeText={(v) => onChange("title", v)}
+        />
+        <TitleTranslationsEditor
+          value={translations}
+          disabled={disabled}
+          onChange={setTranslations}
         />
         <FormInput
-          options={{ placeholder: "آدرس" }}
-          title="آدرس url"
-          onChangeText={(v) => onChange("url", v)}
-          value={states?.url}
           showX={false}
+          title="آدرس url"
+          value={states?.url}
+          options={{ placeholder: "آدرس" }}
+          onChangeText={(v) => onChange("url", v)}
         />
         <FormSelect
-          title="محتوای اصلی"
-          options={{ isSearchable: true }}
-          list={contents}
-          searchRoute="/admin/contents"
-          onSearchCompleted={(list) => setContents(list)}
-          onSelect={(v) => onChange("main_content", v)}
-          value={states?.main_content}
           showX={false}
+          list={contents}
+          title="محتوای اصلی"
+          value={states?.main_content}
+          searchRoute="/admin/contents"
+          options={{ isSearchable: true }}
+          onSelect={(v) => onChange("main_content", v)}
+          onSearchCompleted={(list) => setContents(list)}
         />
         <FormSelectMulti
           options={{}}
+          isSearchable
           title="صفحات مرتبط"
           list={landingPages}
           searchRoute="/admin/landing-pages"
+          value={states?.related_landings || []}
           onSearchCompleted={(list) => setLandingPages(list)}
           onSelect={(v) => onChange("related_landings", v)}
-          value={states?.related_landings || []}
-          isSearchable
         />
         <Divider moreClass="col-span-full" />
         <FormInput
-          options={{ titleHint: "(اختیاری)" }}
-          title="ترتیب نمایش"
-          onChangeText={(v) => onChange("sort_order", v)}
-          value={states?.sort_order}
           showX={false}
+          title="ترتیب نمایش"
+          value={states?.sort_order}
+          options={{ titleHint: "(اختیاری)" }}
+          onChangeText={(v) => onChange("sort_order", v)}
         />
         <FormSwitch
           title="فعال"
@@ -260,27 +252,27 @@ const LandingPageCreate = () => {
 
         <Divider moreClass="col-span-full" />
         <FormSelect
-          title="استان"
-          options={{ isSearchable: true }}
-          list={provinces}
-          searchRoute="/admin/cities"
-          onSearchCompleted={(list) => setProvinces(list)}
-          fixQuery="is_parent=1"
-          onSelect={(v) => onChange("province", v)}
-          value={states?.province}
           showX={true}
+          title="استان"
+          list={provinces}
+          fixQuery="is_parent=1"
+          value={states?.province}
+          searchRoute="/admin/cities"
+          options={{ isSearchable: true }}
+          onSelect={(v) => onChange("province", v)}
+          onSearchCompleted={(list) => setProvinces(list)}
           onRemoveValue={() => onChange("province", null)}
         />
         <FormSelectMulti
+          options={{}}
+          list={cities}
           title="شهـرها"
           isSearchable={true}
-          list={cities}
-          searchRoute="/admin/cities"
-          onSearchCompleted={(list) => setCities(list)}
           fixQuery="is_parent=0"
-          onSelect={(v) => onChange("cities", v)}
           value={states?.cities}
-          options={{}}
+          searchRoute="/admin/cities"
+          onSelect={(v) => onChange("cities", v)}
+          onSearchCompleted={(list) => setCities(list)}
         />
         <Divider moreClass="col-span-full" />
         <div className="flex flex-col col-span-full">
@@ -295,13 +287,11 @@ const LandingPageCreate = () => {
                     <Checkbox
                       key={option.id}
                       onValueChange={(v) => {
-                        if (selectedOptions.includes(option.id)) {
+                        if (selectedOptions.includes(option.id))
                           setSelectedOptions((e) =>
                             e.filter((_) => _ !== option.id),
                           );
-                        } else {
-                          setSelectedOptions((e) => [...e, option.id]);
-                        }
+                        else setSelectedOptions((e) => [...e, option.id]);
                       }}
                       isSelected={selectedOptions.includes(option.id)}
                     >
@@ -313,53 +303,15 @@ const LandingPageCreate = () => {
             </div>
           ))}
         </div>
-        {/* <Divider moreClass="col-span-full" />
-        <FormInput
-          options={{ keyboard: "number" }}
-          title="حداقل درصد تخفیف"
-          onChangeText={(v) => onChange("min_discount_percentage", v)}
-          value={states?.min_discount_percentage}
-          showX={false}
-        />
-        <FormInput
-          options={{ keyboard: "number" }}
-          title="کمترین قیمت"
-          onChangeText={(v) => onChange("min_price", v)}
-          value={states?.min_price}
-          showX={false}
-        />
-        <FormInput
-          options={{ keyboard: "number" }}
-          title="بیشترین قیمت"
-          onChangeText={(v) => onChange("max_price", v)}
-          value={states?.max_price}
-          showX={false}
-        />
-        <FormInput
-          options={{ keyboard: "number" }}
-          title="کمترین اتاق"
-          onChangeText={(v) => onChange("min_bedroom", v)}
-          value={states?.min_bedroom}
-          showX={false}
-        />
-        <FormInput
-          options={{ keyboard: "number" }}
-          title="بیشترین اتاق"
-          onChangeText={(v) => onChange("max_bedroom", v)}
-          value={states?.max_bedroom}
-          showX={false}
-        />
-        <Divider moreClass="col-span-full" /> */}
         <ImageUploader
           title="تصویر"
           options={{}}
-          onSelect={(v: number) => onChange("image", v)}
+          disabled={false}
           list={[states?.image]}
           onDelete={() => void false}
-          disabled={false}
+          onSelect={(v: number) => onChange("image", v)}
         />
       </div>
-      {/*********************** SUBMIT BUTTON ************************/}
       <SubmitButton disabled={disabled} onPress={onSubmit} />
     </div>
   );

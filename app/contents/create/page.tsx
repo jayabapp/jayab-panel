@@ -18,7 +18,7 @@ import { p2e } from "@/helpers/p2e";
 
 import type { ContentTranslations } from "@/interfaces/content-translations";
 
-import HomeContentTranslations from "@/components/Content/HomeContentTranslations";
+import ContentTranslationsEditor from "@/components/Content/ContentTranslationsEditor";
 import SubmitButton from "@/components/Form/SubmitButton";
 import FormBuilder from "@/components/Form/FormBuilder";
 import PageHeader from "@/components/Table/PageHeader";
@@ -116,8 +116,8 @@ const ContentCreate = () => {
   /* ------------------------------- SUBMIT FORM ------------------------------ */
   const onSubmit = () => {
     const error =
-      states.key === "homeContent"
-        ? contentTranslationsError(translations)
+      states.key === "homeContent" || states.key === "terms"
+        ? contentTranslationsError(translations, states.key)
         : null;
     if (error) {
       Notify({ type: "error", body: error });
@@ -128,7 +128,8 @@ const ContentCreate = () => {
 
     body = { ...body, fields: dynamicFieldsStates };
     body = { ...body, seo: seoStates };
-    if (states.key === "homeContent") body = { ...body, translations };
+    if (states.key === "homeContent" || states.key === "terms")
+      body = { ...body, translations };
 
     ApiCall(
       "POST",
@@ -179,8 +180,9 @@ const ContentCreate = () => {
         notEditableList={[]}
       />
 
-      {states.key === "homeContent" && (
-        <HomeContentTranslations
+      {(states.key === "homeContent" || states.key === "terms") && (
+        <ContentTranslationsEditor
+          contentKey={states.key}
           value={translations}
           onChange={setTranslations}
           disabled={disabled}
