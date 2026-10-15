@@ -1,5 +1,6 @@
 "use client";
 
+import { cleanContentTranslations } from "@/helpers/content-translations";
 import { contentTranslationsError } from "@/helpers/content-translations";
 import { prepareInitDataCreator } from "@/helpers/generator/PrepareInitDataCreator.helper";
 import { ShowAction, ShowProps } from "@/components/Table/table.type";
@@ -129,12 +130,17 @@ const ContentEdit = () => {
     }
   }, [states["category_id"]]);
 
+  const translationBase = {
+    key: states.key,
+    html: states.html,
+    full_text: states.full_text,
+    small_text: states.small_text,
+    seo: seoStates,
+  };
+
   /* ------------------------------- SUBMIT FORM ------------------------------ */
   const onSubmit = () => {
-    const error =
-      states.key === "homeContent" || states.key === "terms"
-        ? contentTranslationsError(translations, states.key)
-        : null;
+    const error = contentTranslationsError(translations, translationBase);
     if (error) {
       Notify({ type: "error", body: error });
       return;
@@ -151,8 +157,10 @@ const ContentEdit = () => {
     body = { ...body, fields: df };
     body = { ...body, seo: seoStates };
 
-    if (states.key === "homeContent" || states.key === "terms")
-      body = { ...body, translations };
+    body = {
+      ...body,
+      translations: cleanContentTranslations(translations, translationBase),
+    };
 
     ApiCall(
       "PUT",
@@ -207,14 +215,12 @@ const ContentEdit = () => {
         notEditableList={notEditableList || []}
       />
 
-      {(states.key === "homeContent" || states.key === "terms") && (
-        <ContentTranslationsEditor
-          contentKey={states.key}
-          value={translations}
-          onChange={setTranslations}
-          disabled={disabled}
-        />
-      )}
+      <ContentTranslationsEditor
+        base={translationBase}
+        value={translations}
+        onChange={setTranslations}
+        disabled={disabled}
+      />
 
       {/*********************** SEO ************************/}
       <div className="ltr pb-16">

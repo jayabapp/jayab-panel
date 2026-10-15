@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useSearchParams } from "next/navigation";
+import { cleanContentTranslations } from "@/helpers/content-translations";
 import { contentTranslationsError } from "@/helpers/content-translations";
 import { CreateProps, ShowProps } from "@/components/Table/table.type";
 import { SEO_FORM_ITEMS } from "@/utils/seo.constant";
@@ -113,12 +114,17 @@ const ContentCreate = () => {
     }
   }, [states["category_id"]]);
 
+  const translationBase = {
+    key: states.key,
+    html: states.html,
+    full_text: states.full_text,
+    small_text: states.small_text,
+    seo: seoStates,
+  };
+
   /* ------------------------------- SUBMIT FORM ------------------------------ */
   const onSubmit = () => {
-    const error =
-      states.key === "homeContent" || states.key === "terms"
-        ? contentTranslationsError(translations, states.key)
-        : null;
+    const error = contentTranslationsError(translations, translationBase);
     if (error) {
       Notify({ type: "error", body: error });
       return;
@@ -128,8 +134,10 @@ const ContentCreate = () => {
 
     body = { ...body, fields: dynamicFieldsStates };
     body = { ...body, seo: seoStates };
-    if (states.key === "homeContent" || states.key === "terms")
-      body = { ...body, translations };
+    body = {
+      ...body,
+      translations: cleanContentTranslations(translations, translationBase),
+    };
 
     ApiCall(
       "POST",
@@ -180,14 +188,12 @@ const ContentCreate = () => {
         notEditableList={[]}
       />
 
-      {(states.key === "homeContent" || states.key === "terms") && (
-        <ContentTranslationsEditor
-          contentKey={states.key}
-          value={translations}
-          onChange={setTranslations}
-          disabled={disabled}
-        />
-      )}
+      <ContentTranslationsEditor
+        base={translationBase}
+        value={translations}
+        onChange={setTranslations}
+        disabled={disabled}
+      />
 
       {/*********************** SEO ************************/}
       <>
