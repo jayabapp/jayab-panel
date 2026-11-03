@@ -1,38 +1,27 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ApiCall } from "@/helpers/ApiCall";
-import pluralize from "pluralize";
-import {
-  ActionButton,
-  Column,
-  ColumnComponent,
-  CreateProps,
-  FilterProp,
-  Operator,
-  TableServerProps,
-} from "@/components/Table/table.type";
-import Loading from "@/components/shared/Loading";
-import EditButton from "@/components/Table/Action/EditButton";
-import Table from "@/components/Table";
-import Cell from "@/components/Table/Cell";
-import DeleteButton from "@/components/Table/Action/DeleteButton";
-import ShowButton from "@/components/Table/Action/ShowButton";
-import PageHeader from "@/components/Table/PageHeader";
-import moment from "moment-jalaali";
-import ConfirmModal from "@/components/Modal/ConfirmModal";
-import TableFilter from "@/components/Table/TableFilter";
-import { Button, Pagination } from "@nextui-org/react";
+import { CreateProps, FilterProp } from "@/components/Table/table.type";
+import { ActionButton, Column } from "@/components/Table/table.type";
+import { useState, useEffect } from "react";
+import { TableServerProps } from "@/components/Table/table.type";
 import { PaginationMeta } from "@/interfaces/pagination.type";
+import { useQueryGet } from "@/helpers/query-get.hooks";
+import { Pagination } from "@nextui-org/react";
 import { apiRoutes } from "@/utils/urls";
 import { kebabCase } from "lodash";
+import { ApiCall } from "@/helpers/ApiCall";
+
 import createTableRowsHelper from "@/helpers/generator/CreateTableRow.helper";
-import { produce } from "immer";
-import SaveButton from "@/components/Table/Action/SaveButton";
-import { useQueryGet } from "@/helpers/query-get.hooks";
+import DeleteButton from "@/components/Table/Action/DeleteButton";
+import ConfirmModal from "@/components/Modal/ConfirmModal";
 import QueryString from "qs";
-import { PlusCircleIcon } from "@heroicons/react/24/solid";
+import ShowButton from "@/components/Table/Action/ShowButton";
+import PageHeader from "@/components/Table/PageHeader";
+import EditButton from "@/components/Table/Action/EditButton";
+import pluralize from "pluralize";
+import Loading from "@/components/shared/Loading";
+import Table from "@/components/Table";
 
 const endpoint = apiRoutes.BANNER1;
 
@@ -51,7 +40,7 @@ const Banners = ({}) => {
   const [filterProps, setFilterProps] = useState<CreateProps[]>([]);
 
   const [currentPage, setCurrentPage] = useState(
-    Number(searchParams?.get("page")) || 1
+    Number(searchParams?.get("page")) || 1,
   );
   const [meta, setMeta] = useState<PaginationMeta>();
 
@@ -79,8 +68,8 @@ const Banners = ({}) => {
         setTableProps(data.tableProps || {});
         setFilterProps(
           data.filterProps?.filter(
-            (e: FilterProp) => e.isHidden == false || !e.isHidden
-          )
+            (e: FilterProp) => e.isHidden == false || !e.isHidden,
+          ),
         );
 
         const editableColumnsKey: string[] = [];
@@ -88,7 +77,7 @@ const Banners = ({}) => {
           if (e.isEditable) editableColumnsKey.push(e.update_key || e.key);
         });
         setEditableColumns(editableColumnsKey);
-      }
+      },
     );
   };
 
@@ -119,7 +108,7 @@ const Banners = ({}) => {
       ({ data }) => {
         getList(currentPage, queriesParams);
         setDeleteModalIsVisible(false);
-      }
+      },
     );
   };
   if (isLoading) {
@@ -132,7 +121,7 @@ const Banners = ({}) => {
       rowData,
       columns,
       updatedStates,
-      setUpdatedStates
+      setUpdatedStates,
     );
     return items;
   };
@@ -154,7 +143,7 @@ const Banners = ({}) => {
               <ShowButton
                 onPress={() =>
                   router.push(
-                    `/${pluralize(kebabCase(model) || "")}/show/${row.id}`
+                    `/${pluralize(kebabCase(model) || "")}/show/${row.id}`,
                   )
                 }
               />
@@ -169,7 +158,7 @@ const Banners = ({}) => {
               <EditButton
                 onPress={() =>
                   router.push(
-                    `/${pluralize(kebabCase(model) || "")}/edit/${row.id}`
+                    `/${pluralize(kebabCase(model) || "")}/edit/${row.id}`,
                   )
                 }
               />
@@ -209,16 +198,6 @@ const Banners = ({}) => {
         totalCount={meta?.total}
       />
 
-      {/*********************** FILTER ************************/}
-      {/* <TableFilter
-        filterProps={filterProps}
-        onSubmitFilter={(filters: object) => {
-          getList(1, filters);
-          setCurrentPage(1);
-        }}
-      /> */}
-
-      {/*********************** TABLE ************************/}
       <div className="app-container-profile">
         <Table
           data={list}
@@ -250,7 +229,6 @@ const Banners = ({}) => {
           showControls
         />
       </div>
-      {/*********************** DELETE MODAL  ************************/}
       <ConfirmModal
         text={"آیا میخواهید این آیتم را حذف کنید؟"}
         isVisible={deleteModalisVisible}

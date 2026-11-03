@@ -1,18 +1,24 @@
 "use client";
-import { useState, useEffect } from "react";
-import { ApiCall } from "@/helpers/ApiCall";
+
+import { prepareTitleTranslations } from "@/components/Content/TitleTranslationsEditor";
 import { useParams, useRouter } from "next/navigation";
-import Loading from "@/components/shared/Loading";
-import PageHeader from "@/components/Table/PageHeader";
-import { CreateProps } from "@/components/Table/table.type";
-import FormBuilder from "@/components/Form/FormBuilder";
-import { produce } from "immer";
-import SubmitButton from "@/components/Form/SubmitButton";
-import { isEmpty } from "lodash";
-import { p2e } from "@/helpers/p2e";
-import { apiRoutes } from "@/utils/urls";
-import FormSelect from "@/components/Form/FormSelect";
+import { useState, useEffect } from "react";
 import { apiBodyCreator } from "@/helpers/generator/ApiBodyCreator.helper";
+import { CreateProps } from "@/components/Table/table.type";
+import { apiRoutes } from "@/utils/urls";
+import { ApiCall } from "@/helpers/ApiCall";
+import { isEmpty } from "lodash";
+import { produce } from "immer";
+import { p2e } from "@/helpers/p2e";
+
+import { type TitleTranslations } from "@/components/Content/TitleTranslationsEditor";
+
+import TitleTranslationsEditor from "@/components/Content/TitleTranslationsEditor";
+import SubmitButton from "@/components/Form/SubmitButton";
+import FormBuilder from "@/components/Form/FormBuilder";
+import PageHeader from "@/components/Table/PageHeader";
+import FormSelect from "@/components/Form/FormSelect";
+import Loading from "@/components/shared/Loading";
 
 type State = { [key: string]: any };
 
@@ -26,26 +32,35 @@ const CityCreate = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [formItems, setFormItems] = useState<CreateProps[]>();
   const [states, setStates] = useState<State>({});
+  const [translations, setTranslations] = useState<TitleTranslations>({});
 
   useEffect(() => {
     getFormItems();
   }, []);
 
   const getFormItems = () => {
-    ApiCall("GET", `${endpoint}/model-props?is_parent=${id == "null" ? 1 : 0}`, null, "GET FORM ITEMS", ({ data }) => {
-      let props = data.createProps;
-
-      setFormItems(props || []);
-      setIsLoading(false);
-    });
+    ApiCall(
+      "GET",
+      `${endpoint}/model-props?is_parent=${id == "null" ? 1 : 0}`,
+      null,
+      "GET FORM ITEMS",
+      ({ data }) => {
+        let props = data.createProps;
+        setFormItems(props || []);
+        setIsLoading(false);
+      },
+    );
   };
 
-  /* ------------------------------- SUBMIT FORM ------------------------------ */
   const onSubmit = () => {
     setDisabled(true);
     let body = apiBodyCreator(states, formItems);
-
-    body = { ...body, parent_id: +id, type };
+    body = {
+      ...body,
+      parent_id: id === "null" ? null : +id,
+      type,
+      translations: prepareTitleTranslations(translations),
+    };
     console.log({ body });
 
     ApiCall(
@@ -55,24 +70,34 @@ const CityCreate = () => {
       "SUBMIT ",
       ({ data }) => {
         router.back();
-        // setDisabled(false);
       },
-      () => setDisabled(false)
+      () => setDisabled(false),
     );
   };
 
   if (isLoading || !formItems) return <Loading />;
   return (
     <div className="app-container-profile ">
-      {/*********************** Page HEADER ************************/}
       <div>
-        <PageHeader title="ایجاد" hasCreateButton={false} hasBackButton={true} />
+        <PageHeader
+          title="ایجاد"
+          hasBackButton={true}
+          hasCreateButton={false}
+        />
       </div>
 
-      {/*********************** Form Builder ************************/}
-      <FormBuilder formItems={formItems} states={states} setStates={setStates} notEditableList={[]} />
+      <FormBuilder
+        states={states}
+        notEditableList={[]}
+        formItems={formItems}
+        setStates={setStates}
+      />
 
-      {/*********************** SUBMIT BUTTON ************************/}
+      <TitleTranslationsEditor
+        disabled={disabled}
+        value={translations}
+        onChange={setTranslations}
+      />
       <SubmitButton disabled={disabled} onPress={onSubmit} />
     </div>
   );

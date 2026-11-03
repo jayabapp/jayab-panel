@@ -10,6 +10,7 @@ import Detail from "@/components/Show/Details";
 import { apiRoutes } from "@/utils/urls";
 import ShowActions from "@/components/Show/ShowActions";
 import ChangeStatus from "@/components/Show/ChangeStatus.component";
+import PropertyTranslationsBox from "@/components/Property/PropertyTranslationsBox";
 
 const endpoint = apiRoutes.PROPERTY1;
 
@@ -71,6 +72,9 @@ const PropertyShow = () => {
 
       {/*********************** DETAIL ************************/}
       <Detail data={data} />
+
+      {/*********************** TRANSLATIONS ************************/}
+      <PropertyTranslationsBox endpoint={`${endpoint}/${id}`} />
     </div>
   );
 };

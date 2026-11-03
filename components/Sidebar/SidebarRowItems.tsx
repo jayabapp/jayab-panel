@@ -39,9 +39,6 @@ export const phosphoreIconProps = (selected: boolean): IconProps => {
     size: 22,
   };
 };
-// export const iconClassName = (selected: boolean) => {
-//   return `h-6 w-6 ${selected ? "text-primary-700" : "text-gray-500 dark:text-white"} `;
-// };
 
 export type SidebarRowMenu = {
   id: number;
@@ -471,14 +468,6 @@ export const sidebarRowItems = (
           sub_categories: [],
           key: "settings",
         },
-        // {
-        //   id: 401,
-        //   title: "دسته بندی ها",
-        //   route: "/categories",
-        //   icon: (selected) => <TreeStructure {...phosphoreIconProps(selected)} />,
-        //   sub_categories: [],
-        //   key: "categories",
-        // },
       ],
     },
 
@@ -575,14 +564,6 @@ export const sidebarRowItems = (
           icon: (selected) => <Browsers {...phosphoreIconProps(selected)} />,
           key: "landing-pages",
         },
-        // {
-        //   id: 334535,
-        //   title: "پرسش و پاسخ",
-        //   route: "/content-questions",
-        //   icon: (selected) => <Question {...phosphoreIconProps(selected)} />,
-        //   sub_categories: [],
-        //   key: "content-questions",
-        // },
         {
           id: 26313,
           title: "تنظیمات سئو",
@@ -616,14 +597,6 @@ export const sidebarRowItems = (
           ],
           key: "seo-setting",
         },
-        // {
-        //   id: 35,
-        //   title: "کنترل نسخه",
-        //   route: "/base/version-control",
-        //   icon: (selected) => <GitBranch {...phosphoreIconProps(selected)} />,
-        //   sub_categories: [],
-        //   key: "version-control",
-        // },
       ],
     },
 
