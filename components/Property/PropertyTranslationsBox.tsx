@@ -10,6 +10,7 @@ import type { TranslationLocale } from "@/interfaces/property-translations";
 
 import SubmitButton from "@/components/Form/SubmitButton";
 import Loading from "@/components/shared/Loading";
+import Notify from "@/components/shared/Toast";
 
 type Props = { endpoint: string };
 
@@ -127,7 +128,49 @@ const LOCALES: {
 ];
 
 const INPUT =
-  "w-full rounded-md border bg-transparent p-3 text-sm disabled:opacity-70";
+  "w-full rounded-md border bg-transparent p-3 text-base leading-8 disabled:opacity-70";
+
+type PersianForm = Record<PropertyTranslationSection, Record<string, string>>;
+
+const persianFormOf = (data: PropertyTranslationsData): PersianForm => ({
+  main: { title: data.main.fa.title ?? "", address: data.main.fa.address ?? "" },
+  host: { name: data.host.fa ?? "" },
+  descriptions: { ...data.descriptions.fa },
+});
+
+/** Only the Persian fields the admin actually changed, in the API's `fa` shape. */
+const changedPersian = (data: PropertyTranslationsData, edited: PersianForm) => {
+  const original = persianFormOf(data);
+  const changed = (section: PropertyTranslationSection, name: string) =>
+    (edited[section][name] ?? "") !== (original[section][name] ?? "");
+  const descriptions = Object.fromEntries(
+    Object.keys(edited.descriptions)
+      .filter((name) => changed("descriptions", name))
+      .map((name) => [name, edited.descriptions[name]])
+  );
+  return {
+    ...(changed("main", "title") ? { title: edited.main.title } : {}),
+    ...(changed("main", "address") ? { address: edited.main.address } : {}),
+    ...(changed("host", "name") ? { host_name: edited.host.name } : {}),
+    ...(Object.keys(descriptions).length ? { descriptions } : {}),
+  };
+};
+
+const CopyButton = ({ text }: { text: string }) => (
+  <button
+    type="button"
+    disabled={!text}
+    onClick={() =>
+      navigator.clipboard
+        .writeText(text)
+        .then(() => Notify({ type: "success", body: "متن کپی شد" }))
+        .catch(() => Notify({ type: "error", body: "کپی انجام نشد" }))
+    }
+    className="shrink-0 rounded-md border px-3 py-1 text-sm hover:bg-black/5 disabled:opacity-40 dark:hover:bg-white/10"
+  >
+    کپی
+  </button>
+);
 
 const emptyForm = (): PropertyTranslationsForm => ({
   main: {},
@@ -147,6 +190,7 @@ const persianOf = (
 };
 
 type FieldInputProps = {
+  "aria-label": string;
   dir: "ltr" | "rtl";
   lang: string;
   value: string;
@@ -160,7 +204,7 @@ const FieldInput = ({ multiline, onChange, ...props }: FieldInputProps) =>
   multiline ? (
     <textarea
       {...props}
-      rows={4}
+      rows={6}
       className={INPUT}
       onChange={(event) => onChange?.(event.target.value)}
     />
@@ -175,6 +219,7 @@ const FieldInput = ({ multiline, onChange, ...props }: FieldInputProps) =>
 const PropertyTranslationsBox = ({ endpoint }: Props) => {
   const [data, setData] = useState<PropertyTranslationsData>();
   const [form, setForm] = useState<PropertyTranslationsForm>(emptyForm());
+  const [persian, setPersian] = useState<PersianForm>();
   const [disabled, setDisabled] = useState(false);
 
   const load = () =>
@@ -185,6 +230,7 @@ const PropertyTranslationsBox = ({ endpoint }: Props) => {
       "GET TRANSLATIONS",
       ({ data }: { data: PropertyTranslationsData }) => {
         setData(data);
+        setPersian(persianFormOf(data));
         setForm({
           main: data.main.translations ?? {},
           host: data.host.translations ?? {},
@@ -212,11 +258,13 @@ const PropertyTranslationsBox = ({ endpoint }: Props) => {
     }));
 
   const onSubmit = () => {
+    if (!data || !persian) return;
     setDisabled(true);
+    const fa = changedPersian(data, persian);
     ApiCall(
       "PUT",
       `${endpoint}/translations`,
-      form,
+      Object.keys(fa).length ? { ...form, fa } : form,
       "UPDATE TRANSLATIONS",
       () => {
         setDisabled(false);
@@ -226,7 +274,7 @@ const PropertyTranslationsBox = ({ endpoint }: Props) => {
     );
   };
 
-  if (!data) return <Loading />;
+  if (!data || !persian) return <Loading />;
 
   return (
     <section className="my-10 space-y-8" aria-labelledby="property-translations">
@@ -234,11 +282,12 @@ const PropertyTranslationsBox = ({ endpoint }: Props) => {
         <h2 id="property-translations" className="text-lg font-bold">
           ترجمهٔ محتوای آگهی (انگلیسی و عربی)
         </h2>
-        <p className="mt-2 text-sm opacity-80">
-          متن فارسی را مالک آگهی وارد کرده و اینجا فقط خواندنی است. هر فیلدی که
-          خالی بماند، در سایت انگلیسی و عربی همان متن فارسی نمایش داده می‌شود.
-          برای ترجمهٔ امکانات و گزینه‌های ثابت (مثل استخر، شهرکی، آسفالت) از
-          بخش «گزینه‌های ملک» استفاده کنید.
+        <p className="mt-2 text-base leading-8 opacity-80">
+          متن فارسی را می‌توانید همین‌جا اصلاح کنید؛ با ذخیره، متن خود آگهی در
+          سایت هم عوض می‌شود. عنوان، آدرس و نام میزبان خالی ذخیره نمی‌شوند. هر
+          ترجمه‌ای که خالی بماند، در سایت انگلیسی و عربی همان متن فارسی نمایش
+          داده می‌شود. برای ترجمهٔ امکانات و گزینه‌های ثابت (مثل استخر، شهرکی،
+          آسفالت) از بخش «گزینه‌های ملک» استفاده کنید.
         </p>
       </div>
 
@@ -251,35 +300,49 @@ const PropertyTranslationsBox = ({ endpoint }: Props) => {
         if (!visible.length) return null;
         return (
           <fieldset key={section} disabled={disabled} className="space-y-6">
-            <legend className="mb-2 font-medium">{heading}</legend>
+            <legend className="mb-2 text-lg font-medium">{heading}</legend>
             {visible.map((field) => (
               <div
                 key={field.name}
                 className="grid grid-cols-1 gap-3 rounded-lg border p-4 lg:grid-cols-3"
               >
-                <label className="block text-sm">
-                  <span className="mb-2 block font-medium">
-                    {field.label} — فارسی
-                  </span>
+                <div className="text-base">
+                  <div className="mb-2 flex items-center justify-between gap-2 font-medium">
+                    <span>{field.label} — فارسی</span>
+                    <CopyButton text={persian[section][field.name] ?? ""} />
+                  </div>
                   <FieldInput
+                    aria-label={`${field.label} — فارسی`}
                     dir="rtl"
                     lang="fa"
-                    disabled
                     multiline={field.multiline}
-                    value={persianOf(data, section, field.name)}
+                    maxLength={field.maxLength}
+                    value={persian[section][field.name] ?? ""}
+                    onChange={(text) =>
+                      setPersian((current) =>
+                        current && {
+                          ...current,
+                          [section]: { ...current[section], [field.name]: text },
+                        }
+                      )
+                    }
                   />
                   {field.hint ? (
-                    <span className="mt-1 block text-xs opacity-70">
+                    <span className="mt-1 block text-sm opacity-70">
                       {field.hint}
                     </span>
                   ) : null}
-                </label>
+                </div>
                 {LOCALES.map(({ code, label, dir }) => {
                   const value = form[section][code]?.[field.name] ?? "";
                   return (
-                    <label key={code} className="block text-sm">
-                      <span className="mb-2 block font-medium">{label}</span>
+                    <div key={code} className="text-base">
+                      <div className="mb-2 flex items-center justify-between gap-2 font-medium">
+                        <span>{label}</span>
+                        <CopyButton text={value} />
+                      </div>
                       <FieldInput
+                        aria-label={`${field.label} — ${label}`}
                         dir={dir}
                         lang={code}
                         value={value}
@@ -289,10 +352,10 @@ const PropertyTranslationsBox = ({ endpoint }: Props) => {
                           setValue(section, code, field.name, text)
                         }
                       />
-                      <span className="mt-1 block text-xs opacity-60" dir="ltr">
+                      <span className="mt-1 block text-sm opacity-60" dir="ltr">
                         {value.length}/{field.maxLength}
                       </span>
-                    </label>
+                    </div>
                   );
                 })}
               </div>
@@ -305,7 +368,7 @@ const PropertyTranslationsBox = ({ endpoint }: Props) => {
         <SubmitButton
           disabled={disabled}
           onPress={onSubmit}
-          title="ذخیرهٔ ترجمه‌ها"
+          title="ذخیرهٔ متن‌ها و ترجمه‌ها"
         />
       </div>
     </section>
