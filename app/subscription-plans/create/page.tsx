@@ -7,6 +7,11 @@ import Loading from "@/components/shared/Loading";
 import PageHeader from "@/components/Table/PageHeader";
 import { CreateProps, ShowProps } from "@/components/Table/table.type";
 import FormBuilder from "@/components/Form/FormBuilder";
+import TextTranslationsEditor, {
+  PLAN_TRANSLATED_FIELDS,
+  translationsFromShowProps,
+  type TextTranslations,
+} from "@/components/Content/TextTranslationsEditor";
 import { produce } from "immer";
 import SubmitButton from "@/components/Form/SubmitButton";
 import { apiRoutes } from "@/utils/urls";
@@ -22,6 +27,7 @@ const SubscriptionPlanCreate = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [formItems, setFormItems] = useState<CreateProps[]>();
   const [states, setStates] = useState<State>({});
+  const [translations, setTranslations] = useState<TextTranslations>({});
 
   useEffect(() => {
     getFormItems();
@@ -71,6 +77,7 @@ const SubscriptionPlanCreate = () => {
       ...body,
       lat: +states?.coordinate?.lat,
       lng: +states?.coordinate?.lng,
+      translations,
     };
 
     console.log({ body });
@@ -106,6 +113,16 @@ const SubscriptionPlanCreate = () => {
         states={states}
         setStates={setStates}
         notEditableList={[]}
+      />
+
+      {/*********************** TRANSLATIONS ************************/}
+      <TextTranslationsEditor
+        title="ترجمهٔ پلن (انگلیسی و عربی)"
+        fields={PLAN_TRANSLATED_FIELDS}
+        persian={states}
+        value={translations}
+        onChange={setTranslations}
+        disabled={disabled}
       />
 
       {/*********************** SUBMIT BUTTON ************************/}

@@ -10,7 +10,7 @@ import type { TranslationLocale } from "@/interfaces/property-translations";
 
 import SubmitButton from "@/components/Form/SubmitButton";
 import Loading from "@/components/shared/Loading";
-import Notify from "@/components/shared/Toast";
+import CopyButton from "@/components/Form/CopyButton";
 
 type Props = { endpoint: string };
 
@@ -155,22 +155,6 @@ const changedPersian = (data: PropertyTranslationsData, edited: PersianForm) => 
     ...(Object.keys(descriptions).length ? { descriptions } : {}),
   };
 };
-
-const CopyButton = ({ text }: { text: string }) => (
-  <button
-    type="button"
-    disabled={!text}
-    onClick={() =>
-      navigator.clipboard
-        .writeText(text)
-        .then(() => Notify({ type: "success", body: "متن کپی شد" }))
-        .catch(() => Notify({ type: "error", body: "کپی انجام نشد" }))
-    }
-    className="shrink-0 rounded-md border px-3 py-1 text-sm hover:bg-black/5 disabled:opacity-40 dark:hover:bg-white/10"
-  >
-    کپی
-  </button>
-);
 
 const emptyForm = (): PropertyTranslationsForm => ({
   main: {},

@@ -8,6 +8,11 @@ import Loading from "@/components/shared/Loading";
 import PageHeader from "@/components/Table/PageHeader";
 import { CreateProps } from "@/components/Table/table.type";
 import FormBuilder from "@/components/Form/FormBuilder";
+import TextTranslationsEditor, {
+  CATEGORY_TRANSLATED_FIELDS,
+  translationsFromShowProps,
+  type TextTranslations,
+} from "@/components/Content/TextTranslationsEditor";
 import { produce } from "immer";
 import SubmitButton from "@/components/Form/SubmitButton";
 import { isEmpty } from "lodash";
@@ -31,6 +36,7 @@ const ContentCategoryEdit = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [formItems, setFormItems] = useState<CreateProps[]>();
   const [states, setStates] = useState<State>({});
+  const [translations, setTranslations] = useState<TextTranslations>({});
   const [seoStates, setSeoStates] = useState({});
 
   useEffect(() => {
@@ -48,6 +54,7 @@ const ContentCategoryEdit = () => {
   /* -------------------------------- GET DATA -------------------------------- */
   const getData = (props: CreateProps[]) => {
     ApiCall("GET", `${endpoint}/${id}`, null, "GET DATA", ({ data }) => {
+      setTranslations(translationsFromShowProps(data.showProps));
       prepareInitData(
         data.showProps?.filter((e: any) => e.isEditable || e.isEditable == null),
         props
@@ -76,7 +83,7 @@ const ContentCategoryEdit = () => {
   const onSubmit = () => {
     setDisabled(true);
     let body = apiBodyCreator(states, formItems);
-    body = { ...body, seo: seoStates };
+    body = { ...body, seo: seoStates, translations };
 
     console.log({ body });
 
@@ -103,6 +110,16 @@ const ContentCategoryEdit = () => {
 
       {/*********************** Form Builder ************************/}
       <FormBuilder formItems={formItems} states={states} setStates={setStates} notEditableList={[]} />
+
+      {/*********************** TRANSLATIONS ************************/}
+      <TextTranslationsEditor
+        title="ترجمهٔ دسته‌بندی (انگلیسی و عربی)"
+        fields={CATEGORY_TRANSLATED_FIELDS}
+        persian={states}
+        value={translations}
+        onChange={setTranslations}
+        disabled={disabled}
+      />
 
       {/*********************** SEO ************************/}
       <div className="ltr pb-16">

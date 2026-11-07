@@ -1,23 +1,34 @@
 "use client";
-import { useParams, useSearchParams } from "next/navigation";
-import { useState, useEffect, useMemo } from "react";
-import { ApiCall } from "@/helpers/ApiCall";
-import { useRouter } from "next/navigation";
 
-import Loading from "@/components/shared/Loading";
-import PageHeader from "@/components/Table/PageHeader";
+import {
+  CONTENT_CATEGORY_SEO_FORM_ITEMS,
+  SEO_FORM_ITEMS,
+} from "@/utils/seo.constant";
+import { useState, useEffect, useMemo } from "react";
+import { useParams, useSearchParams } from "next/navigation";
 import { CreateProps, ShowProps } from "@/components/Table/table.type";
-import Detail from "@/components/Show/Details";
-import { Button, Input } from "@nextui-org/react";
-import FormBuilder from "@/components/Form/FormBuilder";
-import { produce } from "immer";
-import SubmitButton from "@/components/Form/SubmitButton";
-import { isEmpty } from "lodash";
-import { p2e } from "@/helpers/p2e";
-import { apiRoutes } from "@/utils/urls";
 import { apiBodyCreator } from "@/helpers/generator/ApiBodyCreator.helper";
+import { Button, Input } from "@nextui-org/react";
+import { useRouter } from "next/navigation";
+import { apiRoutes } from "@/utils/urls";
+import { produce } from "immer";
+import { isEmpty } from "lodash";
+import { ApiCall } from "@/helpers/ApiCall";
 import { Divider } from "@/components/shared/Divider";
-import { CONTENT_CATEGORY_SEO_FORM_ITEMS, SEO_FORM_ITEMS } from "@/utils/seo.constant";
+import { p2e } from "@/helpers/p2e";
+
+import TextTranslationsEditor from "@/components/Content/TextTranslationsEditor";
+import SubmitButton from "@/components/Form/SubmitButton";
+import FormBuilder from "@/components/Form/FormBuilder";
+import PageHeader from "@/components/Table/PageHeader";
+import Loading from "@/components/shared/Loading";
+import Detail from "@/components/Show/Details";
+
+import {
+  CATEGORY_TRANSLATED_FIELDS,
+  translationsFromShowProps,
+  type TextTranslations,
+} from "@/components/Content/TextTranslationsEditor";
 
 type State = { [key: string]: any };
 
@@ -29,6 +40,7 @@ const ContentCategoryCreate = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [formItems, setFormItems] = useState<CreateProps[]>();
   const [states, setStates] = useState<State>({});
+  const [translations, setTranslations] = useState<TextTranslations>({});
   const [seoStates, setSeoStates] = useState({});
 
   useEffect(() => {
@@ -36,11 +48,17 @@ const ContentCategoryCreate = () => {
   }, []);
 
   const getFormItems = () => {
-    ApiCall("GET", `${endpoint}/model-props`, null, "GET FORM ITEMS", ({ data }) => {
-      const props = data.createProps;
-      setFormItems(props || []);
-      setIsLoading(false);
-    });
+    ApiCall(
+      "GET",
+      `${endpoint}/model-props`,
+      null,
+      "GET FORM ITEMS",
+      ({ data }) => {
+        const props = data.createProps;
+        setFormItems(props || []);
+        setIsLoading(false);
+      },
+    );
   };
 
   /* ------------------------- GET CHAINED STATE LIST ------------------------- */
@@ -55,17 +73,19 @@ const ContentCategoryCreate = () => {
     });
   };
 
-  //به ازای هر لیست وابسته یکبار این تابع نوشته می شود
   useEffect(() => {
     if (states["category_id"])
-      getChainedStateList("sub_category_id", `/admin/categories/parents/${states["category_id"]?.id}`);
+      getChainedStateList(
+        "sub_category_id",
+        `/admin/categories/parents/${states["category_id"]?.id}`,
+      );
   }, [states["category_id"]]);
 
   /* ------------------------------- SUBMIT FORM ------------------------------ */
   const onSubmit = () => {
     setDisabled(true);
     let body = apiBodyCreator(states, formItems);
-    body = { ...body, seo: seoStates };
+    body = { ...body, seo: seoStates, translations };
 
     console.log({ body });
 
@@ -78,7 +98,7 @@ const ContentCategoryCreate = () => {
         router.back();
         // setDisabled(false);
       },
-      () => setDisabled(false)
+      () => setDisabled(false),
     );
   };
 
@@ -87,16 +107,37 @@ const ContentCategoryCreate = () => {
     <div className="app-container-profile ">
       {/*********************** Page HEADER ************************/}
       <div>
-        <PageHeader title="ایجاد" hasCreateButton={false} hasBackButton={true} />
+        <PageHeader
+          title="ایجاد"
+          hasCreateButton={false}
+          hasBackButton={true}
+        />
       </div>
 
       {/*********************** Form Builder ************************/}
-      <FormBuilder formItems={formItems} states={states} setStates={setStates} notEditableList={[]} />
+      <FormBuilder
+        formItems={formItems}
+        states={states}
+        setStates={setStates}
+        notEditableList={[]}
+      />
+
+      {/*********************** TRANSLATIONS ************************/}
+      <TextTranslationsEditor
+        title="ترجمهٔ دسته‌بندی (انگلیسی و عربی)"
+        fields={CATEGORY_TRANSLATED_FIELDS}
+        persian={states}
+        value={translations}
+        onChange={setTranslations}
+        disabled={disabled}
+      />
 
       {/*********************** SEO ************************/}
       <>
         <Divider moreClass="my-6 border-dashed border-1" />
-        <p className="mb-3 text-teal-500 font-medium text-lg">فیلدهای مربوط به SEO:</p>
+        <p className="mb-3 text-teal-500 font-medium text-lg">
+          فیلدهای مربوط به SEO:
+        </p>
         <FormBuilder
           formItems={CONTENT_CATEGORY_SEO_FORM_ITEMS}
           states={seoStates}

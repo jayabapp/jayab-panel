@@ -7,6 +7,11 @@ import Loading from "@/components/shared/Loading";
 import PageHeader from "@/components/Table/PageHeader";
 import { CreateProps } from "@/components/Table/table.type";
 import FormBuilder from "@/components/Form/FormBuilder";
+import TextTranslationsEditor, {
+  PLAN_TRANSLATED_FIELDS,
+  translationsFromShowProps,
+  type TextTranslations,
+} from "@/components/Content/TextTranslationsEditor";
 import { produce } from "immer";
 import SubmitButton from "@/components/Form/SubmitButton";
 import { apiRoutes } from "@/utils/urls";
@@ -26,6 +31,7 @@ const SubscriptionPlanEdit = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [formItems, setFormItems] = useState<CreateProps[]>();
   const [states, setStates] = useState<State>({});
+  const [translations, setTranslations] = useState<TextTranslations>({});
   const [notEditableList, setNotEditableList] = useState<string[]>([]);
 
   useEffect(() => {
@@ -49,6 +55,7 @@ const SubscriptionPlanEdit = () => {
   /* -------------------------------- GET DATA -------------------------------- */
   const getData = (props: CreateProps[]) => {
     ApiCall("GET", `${endpoint}/${id}`, null, "GET DATA", ({ data }) => {
+      setTranslations(translationsFromShowProps(data.showProps));
       prepareInitData(data.showProps, props);
 
       const list = data.showProps
@@ -98,6 +105,7 @@ const SubscriptionPlanEdit = () => {
   const onSubmit = () => {
     setDisabled(true);
     let body = apiBodyCreator(states, formItems);
+    body = { ...body, translations };
 
     console.log({ body });
 
@@ -132,6 +140,16 @@ const SubscriptionPlanEdit = () => {
         states={states}
         setStates={setStates}
         notEditableList={notEditableList}
+      />
+
+      {/*********************** TRANSLATIONS ************************/}
+      <TextTranslationsEditor
+        title="ترجمهٔ پلن (انگلیسی و عربی)"
+        fields={PLAN_TRANSLATED_FIELDS}
+        persian={states}
+        value={translations}
+        onChange={setTranslations}
+        disabled={disabled}
       />
 
       {/*********************** SUBMIT BUTTON ************************/}
